@@ -83,7 +83,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-start gap-3">
-                <Instagram className="w-4 h-4 text-white/40 mt-1 flex-shrink-0" strokeWidth={2} />
+                {/* <Instagram className="w-4 h-4 text-white/40 mt-1 flex-shrink-0" strokeWidth={2} /> */}
                 <a
                   href={BRAND_CONFIG.instagramUrl}
                   target="_blank"

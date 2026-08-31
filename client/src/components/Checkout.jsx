@@ -3,10 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowLeft, Check, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function Checkout({ isOpen, onClose, cart }) {
-  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
