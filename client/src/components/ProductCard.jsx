@@ -7,6 +7,7 @@ import { useState } from "react";
 export default function ProductCard({ product, onQuickView, onAddToCart, onWishlistToggle, isInWishlist }) {
   const [showBack, setShowBack] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const badgeColors = {
     NEW: "bg-charcoal text-white",
@@ -14,6 +15,14 @@ export default function ProductCard({ product, onQuickView, onAddToCart, onWishl
     BESTSELLER: "bg-olive text-white",
     "LAST FEW": "bg-cocoa text-white",
   };
+
+  const isJewelry = product.category === 'jewelry';
+  const frontImage = isJewelry 
+    ? `/images/jewelry/${product.id}.jpg` 
+    : (product.images?.front || `/images/shirts/${product.id}-front.jpg`);
+  const backImage = isJewelry 
+    ? null 
+    : (product.images?.back || `/images/shirts/${product.id}-back.jpg`);
 
   return (
     <motion.article
@@ -27,68 +36,67 @@ export default function ProductCard({ product, onQuickView, onAddToCart, onWishl
     >
       {/* Product Image */}
       <div className="relative aspect-[3/4] overflow-hidden bg-warm-beige/10">
-        {/* Front/Back Image Toggle */}
+        {/* Front Image */}
         <motion.div
           initial={false}
           animate={{ x: showBack ? "-100%" : 0, opacity: showBack ? 0 : 1 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="absolute inset-0 flex items-center justify-center p-6"
+          className="absolute inset-0"
         >
-          <div className="w-full h-full flex items-center justify-center relative">
-            {/* Shirt silhouette using CSS */}
-            <div className="relative w-3/4 h-3/4 max-w-[280px] max-h-[350px]">
-              <div className="absolute inset-0 bg-[var(--product-color)] rounded-t-[8px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]" style={{ "--product-color": product.colorCode }} />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-2 bg-charcoal/20 rounded-b-[4px]" />
-              
-              {/* Design preview on shirt */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 pointer-events-none">
-                {product.frontDesign && !showBack && (
-                  <div className="text-center text-charcoal/60 opacity-70">
-                    <p className="font-display text-xs md:text-sm tracking-wider">{product.frontDesign.split(" ")[0]}</p>
-                    <p className="font-body text-[10px] uppercase tracking-widest">front design</p>
-                  </div>
-                )}
-                {product.backDesign && showBack && (
-                  <div className="text-center text-charcoal/60 opacity-70">
-                    <p className="font-display text-xs md:text-sm tracking-wider">Back Design</p>
-                    <p className="font-body text-[10px] uppercase tracking-widest">back view</p>
-                  </div>
-                )}
-              </div>
+          {!imageError ? (
+            <img
+              src={frontImage}
+              alt={`${product.name} - Front`}
+              className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-warm-beige/20">
+              <div 
+                className="w-3/4 h-3/4 rounded-none shadow-md" 
+                style={{ backgroundColor: product.colorCode || "#E8E0D0" }}
+              />
             </div>
-          </div>
+          )}
         </motion.div>
 
-        <motion.div
-          initial={false}
-          animate={{ x: showBack ? 0 : "100%", opacity: showBack ? 1 : 0 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="absolute inset-0 flex items-center justify-center p-6"
-        >
-          <div className="w-full h-full flex items-center justify-center relative">
-            <div className="relative w-3/4 h-3/4 max-w-[280px] max-h-[350px]">
-              <div className="absolute inset-0 bg-[var(--product-color)] rounded-t-[8px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]" style={{ "--product-color": product.colorCode }} />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-2 bg-charcoal/20 rounded-b-[4px]" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 pointer-events-none">
-                <div className="text-center text-charcoal/60 opacity-70">
-                  <p className="font-display text-xs md:text-sm tracking-wider">Back Design</p>
-                  <p className="font-body text-[10px] uppercase tracking-widest">back view</p>
-                </div>
+        {/* Back Image - only for shirts */}
+        {!isJewelry && backImage && (
+          <motion.div
+            initial={false}
+            animate={{ x: showBack ? 0 : "100%", opacity: showBack ? 1 : 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="absolute inset-0"
+          >
+            {!imageError ? (
+              <img
+                src={backImage}
+                alt={`${product.name} - Back`}
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-warm-beige/20">
+                <div
+                  className="w-3/4 h-3/4 rounded-none shadow-md"
+                  style={{ backgroundColor: product.colorCode || "#E8E0D0" }}
+                />
               </div>
-            </div>
-          </div>
-        </motion.div>
+            )}
+          </motion.div>
+        )}
 
-        {/* Hover to see back */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowBack(!showBack)}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-warm-beige/20 text-charcoal/70 text-xs uppercase tracking-widest font-body rounded-none opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:text-charcoal hover:border-charcoal/30"
-          aria-label={showBack ? "View front" : "View back"}
-        >
-          {showBack ? "VIEW FRONT" : "VIEW BACK"}
-        </motion.button>
+        {/* Hover to see back - only for shirts */}
+        {!isJewelry && (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowBack(!showBack)}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-warm-beige/20 text-charcoal/70 text-xs uppercase tracking-widest font-body rounded-none opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:text-charcoal hover:border-charcoal/30"
+          >
+            {showBack ? "VIEW FRONT" : "VIEW BACK"}
+          </motion.button>
+        )}
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
@@ -111,7 +119,6 @@ export default function ProductCard({ product, onQuickView, onAddToCart, onWishl
           whileTap={{ scale: 0.9 }}
           onClick={(e) => { e.stopPropagation(); onWishlistToggle(product.id); }}
           className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm border border-warm-beige/20 text-charcoal/60 rounded-full hover:bg-white hover:text-charcoal hover:border-charcoal/30 transition-all duration-300 opacity-0 group-hover:opacity-100"
-          aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} strokeWidth={2} />
         </motion.button>
@@ -122,7 +129,6 @@ export default function ProductCard({ product, onQuickView, onAddToCart, onWishl
           whileTap={{ scale: 0.95 }}
           onClick={(e) => { e.stopPropagation(); onQuickView(product); }}
           className="absolute bottom-4 right-3 p-2 bg-white/90 backdrop-blur-sm border border-warm-beige/20 text-charcoal/60 rounded-full hover:bg-white hover:text-charcoal hover:border-charcoal/30 transition-all duration-300 opacity-0 group-hover:opacity-100"
-          aria-label="Quick view"
         >
           <Eye className="w-5 h-5" strokeWidth={2} />
         </motion.button>
@@ -132,7 +138,6 @@ export default function ProductCard({ product, onQuickView, onAddToCart, onWishl
           <div 
             className="w-3 h-3 rounded-full border border-warm-beige/30 shadow-sm" 
             style={{ backgroundColor: product.colorCode }}
-            title={product.color}
           />
         </div>
       </div>
@@ -161,23 +166,20 @@ export default function ProductCard({ product, onQuickView, onAddToCart, onWishl
         </div>
 
         <div className="flex items-center justify-between">
-          <motion.span
-            className="font-display text-xl font-medium text-charcoal"
-          >
+          <span className="font-display text-xl font-medium text-charcoal">
             PKR {product.price.toLocaleString()}
             {product.originalPrice && (
               <span className="font-body text-sm text-charcoal/40 line-through ml-2">
                 PKR {product.originalPrice.toLocaleString()}
               </span>
             )}
-          </motion.span>
+          </span>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-            className="px-4 py-2 bg-charcoal text-white font-body text-xs uppercase tracking-widest hover:bg-charcoal/90 transition-colors duration-300 rounded-none"
-            aria-label={`Add ${product.name} to bag`}
+            className="px-4 py-2 bg-charcoal text-white font-body text-xs uppercase tracking-widest hover:bg-charcoal/90 transition-colors rounded-none"
           >
             <ShoppingBag className="w-4 h-4 mr-2 inline-block" strokeWidth={2} />
             ADD TO BAG

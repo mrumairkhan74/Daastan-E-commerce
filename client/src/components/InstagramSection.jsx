@@ -10,18 +10,18 @@ const InstagramIcon = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
-export default function InstagramSection() {
-  const mockPosts = [
-    { id: 1, color: "bg-warm-beige/40" },
-    { id: 2, color: "bg-cream/60" },
-    { id: 3, color: "bg-champagne/30" },
-    { id: 4, color: "bg-warm-beige/30" },
-    { id: 5, color: "bg-cream/40" },
-    { id: 6, color: "bg-champagne/20" },
-  ];
+const instagramPosts = [
+  { id: 1, img: "/images/lookbook/daylight-1.jpg", alt: "DASTAN fashion editorial" },
+  { id: 2, img: "/images/lookbook/archive-1.jpg", alt: "DASTAN collection" },
+  { id: 3, img: "/images/lookbook/after-dark-1.jpg", alt: "DASTAN style" },
+  { id: 4, img: "/images/lookbook/new-chapter.jpg", alt: "DASTAN new arrival" },
+  { id: 5, img: "/images/lookbook/daylight-2.jpg", alt: "DASTAN outfit" },
+  { id: 6, img: "/images/lookbook/archive-2.jpg", alt: "DASTAN lookbook" },
+];
 
+export default function InstagramSection() {
   return (
-    <section className="py-24">
+    <section className="py-24 bg-warm-beige/5">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <motion.div
@@ -50,7 +50,7 @@ export default function InstagramSection() {
 
         {/* Instagram Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {mockPosts.map((post, index) => (
+          {instagramPosts.map((post, index) => (
             <motion.a
               key={post.id}
               href={BRAND_CONFIG.instagramUrl}
@@ -61,16 +61,14 @@ export default function InstagramSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
               whileHover={{ scale: 1.05 }}
-              className={`aspect-square ${post.color} relative group overflow-hidden flex items-center justify-center`}
+              className="aspect-square relative group overflow-hidden"
             >
-              {/* Placeholder content */}
-              <div className="text-center">
-                <InstagramIcon className="w-8 h-8 text-charcoal/20 mb-2" />
-                <p className="font-body text-xs text-charcoal/30">DASTAN</p>
-              </div>
-
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/60 transition-colors duration-300 flex items-center justify-center">
+              <img
+                src={post.img}
+                alt={post.alt}
+                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/50 transition-all duration-300 flex items-center justify-center">
                 <InstagramIcon className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </motion.a>

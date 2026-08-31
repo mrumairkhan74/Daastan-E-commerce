@@ -1,26 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { BRAND_CONFIG } from "../data/products";
 
 export default function Hero({ onShopClick, onStoryClick }) {
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32">
-      {/* Background atmospheric elements */}
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Image */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-warm-beige/5 to-transparent" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-champagne/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-champagne/10 rounded-full blur-3xl" />
+        <img
+          src="/images/lifestyle/hero.jpg"
+          alt="DASTAN Fashion"
+          className="w-full h-full object-cover opacity-20"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/90 to-white" />
       </div>
 
-      {/* Subtle grid pattern */}
-      <div className="absolute inset-0 -z-10 opacity-5" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z' fill='%231A1A1A' fillOpacity='0.03'/%3E%3C/g%3E%3C/svg%3E")`,
-        backgroundSize: "60px 60px"
-      }} />
-
-      <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 py-32 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Urdu Brand Name */}
           <motion.div
@@ -135,23 +132,6 @@ export default function Hero({ onShopClick, onStoryClick }) {
           </motion.div>
         </div>
       </div>
-
-      {/* Product showcase hint at bottom */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 1.2 }}
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-4 bg-white/80 backdrop-blur-sm border border-warm-beige/20 rounded-none shadow-lg"
-      >
-        <div className="w-20 h-28 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-ivory to-cream rounded-t-[4px] shadow-inner border border-warm-beige/20" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-2 bg-charcoal/20 rounded-b-[4px]" />
-        </div>
-        <div className="text-left">
-          <p className="font-display text-sm text-charcoal/80">DASTAN Oversized Shirt</p>
-          <p className="font-body text-xs text-charcoal/50">200 GSM • 100% Cotton</p>
-        </div>
-      </motion.div>
     </section>
   );
 }

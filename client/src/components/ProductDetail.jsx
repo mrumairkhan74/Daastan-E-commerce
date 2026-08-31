@@ -10,8 +10,17 @@ export default function ProductDetail({ product, isOpen, onClose, onAddToCart, i
   const [showBack, setShowBack] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   if (!product) return null;
+
+  const isJewelry = product.category === 'jewelry';
+  const frontImage = isJewelry 
+    ? `/images/jewelry/${product.id}.jpg` 
+    : (product.images?.front || `/images/shirts/${product.id}-front.jpg`);
+  const backImage = isJewelry 
+    ? null 
+    : (product.images?.back || `/images/shirts/${product.id}-back.jpg`);
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
@@ -68,30 +77,50 @@ export default function ProductDetail({ product, isOpen, onClose, onAddToCart, i
                   transition={{ duration: 0.5 }}
                   className="absolute inset-0 flex items-center justify-center p-8"
                 >
-                  <div className="relative w-3/4 h-3/4 max-w-[400px] max-h-[500px]">
-                    <div 
-                      className="absolute inset-0 rounded-t-[8px] shadow-[0_8px_40px_-8px_rgba(0,0,0,0.2)]" 
-                      style={{ backgroundColor: product.colorCode }}
+                  {!imageError ? (
+                    <img
+                      src={frontImage}
+                      alt={`${product.name}`}
+                      className="w-full h-full object-contain"
+                      onError={() => setImageError(true)}
                     />
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/4 h-3 bg-charcoal/20 rounded-b-[4px]" />
-                  </div>
+                  ) : (
+                    <div className="relative w-3/4 h-3/4 max-w-[400px] max-h-[500px]">
+                      <div 
+                        className="absolute inset-0 rounded-t-[8px] shadow-[0_8px_40px_-8px_rgba(0,0,0,0.2)]" 
+                        style={{ backgroundColor: product.colorCode }}
+                      />
+                    </div>
+                  )}
                 </motion.div>
 
-                <motion.div
-                  animate={{ x: showBack ? 0 : "100%", opacity: showBack ? 1 : 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute inset-0 flex items-center justify-center p-8"
-                >
-                  <div className="relative w-3/4 h-3/4 max-w-[400px] max-h-[500px]">
-                    <div 
-                      className="absolute inset-0 rounded-t-[8px] shadow-[0_8px_40px_-8px_rgba(0,0,0,0.2)]" 
-                      style={{ backgroundColor: product.colorCode }}
-                    />
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/4 h-3 bg-charcoal/20 rounded-b-[4px]" />
-                  </div>
-                </motion.div>
+                {/* Back Image - only for shirts */}
+                {!isJewelry && backImage && (
+                  <motion.div
+                    animate={{ x: showBack ? 0 : "100%", opacity: showBack ? 1 : 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 flex items-center justify-center p-8"
+                  >
+                    {!imageError ? (
+                      <img
+                        src={backImage}
+                        alt={`${product.name} - Back`}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="relative w-3/4 h-3/4 max-w-[400px] max-h-[500px]">
+                        <div 
+                          className="absolute inset-0 rounded-t-[8px] shadow-[0_8px_40px_-8px_rgba(0,0,0,0.2)]" 
+                          style={{ backgroundColor: product.colorCode }}
+                        />
+                      </div>
+                    )}
+                  </motion.div>
+                )}
               </div>
 
+              {/* Image toggle - only for shirts */}
+              {!isJewelry && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                 <button
                   onClick={(e) => { e.stopPropagation(); setShowBack(false); }}
@@ -102,10 +131,13 @@ export default function ProductDetail({ product, isOpen, onClose, onAddToCart, i
                   className={`w-3 h-3 rounded-full transition-all ${showBack ? "bg-charcoal scale-125" : "bg-charcoal/30"}`}
                 />
               </div>
+              )}
 
+              {!isJewelry && (
               <p className="absolute bottom-4 right-4 text-xs text-charcoal/40 font-body uppercase tracking-wider">
                 Click to flip
               </p>
+              )}
             </motion.div>
 
             {/* Right - Product Info */}

@@ -11,23 +11,26 @@ export default function OurStory({ onStoryClick }) {
       
       <div className="relative max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-center">
-          {/* Left - Image/Visual */}
+          {/* Left - Image */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="relative aspect-[4/5] bg-gradient-to-br from-warm-beige/30 to-cream/50 flex items-center justify-center"
+            className="relative aspect-[4/5] overflow-hidden"
           >
-            <div className="text-center space-y-6 p-12">
-              <span className="font-urdu text-7xl text-charcoal/20 block leading-none">داستان</span>
-              <div className="w-px h-24 bg-charcoal/20 mx-auto" />
-              <p className="font-display text-2xl text-charcoal/60 italic">A story in progress</p>
+            <img
+              src="/images/lifestyle/hero-2.jpg"
+              alt="DASTAN Story"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent" />
+            <div className="absolute inset-0 flex items-end p-8">
+              <div className="text-white">
+                <span className="font-urdu text-4xl block mb-2">داستان</span>
+                <p className="font-display text-lg italic opacity-80">Every Thread, A Story</p>
+              </div>
             </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute top-8 left-8 w-16 h-16 border border-charcoal/10" />
-            <div className="absolute bottom-8 right-8 w-16 h-16 border border-charcoal/10" />
           </motion.div>
 
           {/* Right - Text */}
