@@ -1,0 +1,189 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { Heart, Eye, ShoppingBag, Tag } from "lucide-react";
+import { useState } from "react";
+
+export default function ProductCard({ product, onQuickView, onAddToCart, onWishlistToggle, isInWishlist }) {
+  const [showBack, setShowBack] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  const badgeColors = {
+    NEW: "bg-charcoal text-white",
+    LIMITED: "bg-champagne text-charcoal",
+    BESTSELLER: "bg-olive text-white",
+    "LAST FEW": "bg-cocoa text-white",
+  };
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="group relative bg-white border border-warm-beige/20 overflow-hidden transition-all duration-500 hover:shadow-xl"
+    >
+      {/* Product Image */}
+      <div className="relative aspect-[3/4] overflow-hidden bg-warm-beige/10">
+        {/* Front/Back Image Toggle */}
+        <motion.div
+          initial={false}
+          animate={{ x: showBack ? "-100%" : 0, opacity: showBack ? 0 : 1 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="absolute inset-0 flex items-center justify-center p-6"
+        >
+          <div className="w-full h-full flex items-center justify-center relative">
+            {/* Shirt silhouette using CSS */}
+            <div className="relative w-3/4 h-3/4 max-w-[280px] max-h-[350px]">
+              <div className="absolute inset-0 bg-[var(--product-color)] rounded-t-[8px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]" style={{ "--product-color": product.colorCode }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-2 bg-charcoal/20 rounded-b-[4px]" />
+              
+              {/* Design preview on shirt */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 pointer-events-none">
+                {product.frontDesign && !showBack && (
+                  <div className="text-center text-charcoal/60 opacity-70">
+                    <p className="font-display text-xs md:text-sm tracking-wider">{product.frontDesign.split(" ")[0]}</p>
+                    <p className="font-body text-[10px] uppercase tracking-widest">front design</p>
+                  </div>
+                )}
+                {product.backDesign && showBack && (
+                  <div className="text-center text-charcoal/60 opacity-70">
+                    <p className="font-display text-xs md:text-sm tracking-wider">Back Design</p>
+                    <p className="font-body text-[10px] uppercase tracking-widest">back view</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={false}
+          animate={{ x: showBack ? 0 : "100%", opacity: showBack ? 1 : 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="absolute inset-0 flex items-center justify-center p-6"
+        >
+          <div className="w-full h-full flex items-center justify-center relative">
+            <div className="relative w-3/4 h-3/4 max-w-[280px] max-h-[350px]">
+              <div className="absolute inset-0 bg-[var(--product-color)] rounded-t-[8px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]" style={{ "--product-color": product.colorCode }} />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-2 bg-charcoal/20 rounded-b-[4px]" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 pointer-events-none">
+                <div className="text-center text-charcoal/60 opacity-70">
+                  <p className="font-display text-xs md:text-sm tracking-wider">Back Design</p>
+                  <p className="font-body text-[10px] uppercase tracking-widest">back view</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Hover to see back */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowBack(!showBack)}
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-warm-beige/20 text-charcoal/70 text-xs uppercase tracking-widest font-body rounded-none opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:text-charcoal hover:border-charcoal/30"
+          aria-label={showBack ? "View front" : "View back"}
+        >
+          {showBack ? "VIEW FRONT" : "VIEW BACK"}
+        </motion.button>
+
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          {product.badges?.map((badge) => (
+            <motion.span
+              key={badge}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className={`px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider rounded-none ${badgeColors[badge] || "bg-charcoal text-white"}`}
+            >
+              {badge}
+            </motion.span>
+          ))}
+        </div>
+
+        {/* Wishlist */}
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={(e) => { e.stopPropagation(); onWishlistToggle(product.id); }}
+          className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm border border-warm-beige/20 text-charcoal/60 rounded-full hover:bg-white hover:text-charcoal hover:border-charcoal/30 transition-all duration-300 opacity-0 group-hover:opacity-100"
+          aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} strokeWidth={2} />
+        </motion.button>
+
+        {/* Quick View */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={(e) => { e.stopPropagation(); onQuickView(product); }}
+          className="absolute bottom-4 right-3 p-2 bg-white/90 backdrop-blur-sm border border-warm-beige/20 text-charcoal/60 rounded-full hover:bg-white hover:text-charcoal hover:border-charcoal/30 transition-all duration-300 opacity-0 group-hover:opacity-100"
+          aria-label="Quick view"
+        >
+          <Eye className="w-5 h-5" strokeWidth={2} />
+        </motion.button>
+
+        {/* Color indicator */}
+        <div className="absolute bottom-3 left-3 flex gap-1">
+          <div 
+            className="w-3 h-3 rounded-full border border-warm-beige/30 shadow-sm" 
+            style={{ backgroundColor: product.colorCode }}
+            title={product.color}
+          />
+        </div>
+      </div>
+
+      {/* Product Info */}
+      <div className="p-5 space-y-3">
+        <motion.div
+          initial={false}
+          animate={{ x: hovered ? 4 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-2"
+        >
+          <p className="font-display text-lg font-medium text-charcoal tracking-tight leading-snug">
+            {product.name}
+          </p>
+          <p className="font-body text-sm text-charcoal/50 capitalize">{product.color}</p>
+        </motion.div>
+
+        <div className="flex items-center gap-3 text-sm text-charcoal/50 font-body border-t border-warm-beige/20 pt-3">
+          <span className="flex items-center gap-1">
+            <Tag className="w-3 h-3" strokeWidth={2} />
+            {product.gsm} • {product.fabric}
+          </span>
+          <span className="text-charcoal/30">•</span>
+          <span>{product.fit}</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <motion.span
+            className="font-display text-xl font-medium text-charcoal"
+          >
+            PKR {product.price.toLocaleString()}
+            {product.originalPrice && (
+              <span className="font-body text-sm text-charcoal/40 line-through ml-2">
+                PKR {product.originalPrice.toLocaleString()}
+              </span>
+            )}
+          </motion.span>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+            className="px-4 py-2 bg-charcoal text-white font-body text-xs uppercase tracking-widest hover:bg-charcoal/90 transition-colors duration-300 rounded-none"
+            aria-label={`Add ${product.name} to bag`}
+          >
+            <ShoppingBag className="w-4 h-4 mr-2 inline-block" strokeWidth={2} />
+            ADD TO BAG
+          </motion.button>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
