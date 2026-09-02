@@ -26,7 +26,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-black">
         <div className="absolute inset-0 -z-10">
           <video
             autoPlay
@@ -37,7 +37,7 @@ export default function HomePage() {
           >
             <source src="/videos/hero.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-white/20 to-white/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 py-32 relative z-10">
