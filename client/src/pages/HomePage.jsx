@@ -26,20 +26,23 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-black">
-        <div className="absolute inset-0 -z-10">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        {/* Video background */}
+        <div className="absolute inset-0 z-1">
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-50"
           >
             <source src="/videos/hero.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10" />
+          {/* Vignette from bottom - black fade for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         </div>
 
+        {/* Content */}
         <div className="max-w-7xl mx-auto px-6 py-32 relative z-10">
           <motion.div className="max-w-2xl">
             <span className="font-urdu text-4xl md:text-6xl text-charcoal/60 block mb-4">داستان</span>
