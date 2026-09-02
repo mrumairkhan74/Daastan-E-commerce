@@ -277,14 +277,17 @@ export const SORT_OPTIONS = [
 ];
 
 export const NAVIGATION_LINKS = [
-  { label: 'HOME', href: '#home' },
-  { label: 'SHOP', href: '#shop' },
-  { label: 'NEW DROP', href: '#new-drop' },
-  { label: 'COLLECTION', href: '#collection' },
-  { label: 'JEWELRY', href: '#jewelry' },
-  { label: 'OUR STORY', href: '#our-story' },
-  { label: 'LOOKBOOK', href: '#lookbook' },
-  { label: 'CONTACT', href: '#contact' },
+  { label: 'HOME', href: '/' },
+  { label: 'SHOP', href: '/shop', submenu: [
+    { label: 'All Products', href: '/shop' },
+    { label: 'Oversized Tees', href: '/shop?category=shirts' },
+    { label: 'Jewelry', href: '/shop?category=jewelry' },
+    { label: 'New Arrivals', href: '/shop?sort=newest' },
+    { label: 'Best Sellers', href: '/shop?badge=bestseller' },
+  ]},
+  { label: 'COLLECTION', href: '/shop?collection=first-chapter' },
+  { label: 'JEWELRY', href: '/shop?category=jewelry' },
+  { label: 'CONTACT', href: '/contact' },
 ];
 
 export const LOOKBOOK_SECTIONS = [

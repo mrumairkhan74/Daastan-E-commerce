@@ -1,170 +1,192 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, Heart, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Heart, ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
+import { useCart } from "../context/CartContext";
 import { NAVIGATION_LINKS, BRAND_CONFIG } from "../data/products";
 
-export default function Navigation({ cartCount, onSearchClick, onWishlistClick, onCartClick }) {
+export default function Navigation({ onCartClick, onSearchClick, onSizeGuideClick }) {
+  const { cartCount, wishlist } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleMobileLinkClick = () => setMobileMenuOpen(false);
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setActiveDropdown(null);
+  }, [location]);
+
+  const handleMouseEnter = (label) => setActiveDropdown(label);
+  const handleMouseLeave = () => setActiveDropdown(null);
 
   return (
     <>
       {/* Announcement Bar */}
-      <motion.div
-        initial={{ height: 0, opacity: 0 }}
-        animate={{ height: "auto", opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="bg-charcoal text-white py-2 text-center text-sm letter-wide overflow-hidden"
-      >
-        <span className="font-display">Free shipping on orders over PKR 5,000 • Cash on Delivery available across Pakistan</span>
-      </motion.div>
+      <div className="bg-charcoal text-white py-2.5 text-center text-xs md:text-sm">
+        <p className="font-body tracking-wide">
+          🎉 FREE SHIPPING on orders over PKR 5,000 | Use code <span className="font-semibold">DASTAN10</span> for 10% off
+        </p>
+      </div>
 
       {/* Main Navigation */}
-      <motion.header
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? "bg-white/95 backdrop-blur-sm shadow-sm border-b border-warm-beige/20" : "bg-transparent"
+      <header
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          scrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-white"
         }`}
       >
-        <nav className="max-w-7xl mx-auto px-6 py-4" aria-label="Main navigation">
-          <div className="flex items-center justify-between gap-8">
-            {/* Left - Logo */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex-shrink-0"
-            >
-              <a href="#home" className="flex flex-col items-start" aria-label="DASTAN Home">
-                <span className="font-display text-2xl font-medium text-charcoal tracking-tight leading-none">
-                  DASTAN
-                </span>
-                <span className="font-urdu text-sm text-charcoal/60 -mt-1 leading-none">
-                  داستان
-                </span>
-                <span className="text-xs text-charcoal/40 tracking-widest uppercase font-body">
-                  by Ahmedullah
-                </span>
-              </a>
-            </motion.div>
+        <nav className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Logo */}
+            <Link to="/" className="flex flex-col items-start -mt-1">
+              <span className="font-display text-xl md:text-2xl font-medium text-charcoal tracking-tight leading-none">
+                DASTAN
+              </span>
+              <span className="font-urdu text-xs text-charcoal/50 -mt-0.5">داستان</span>
+            </Link>
 
-            {/* Center - Desktop Navigation */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="hidden md:flex items-center gap-10 flex-1 justify-center"
-              role="navigation"
-              aria-label="Main menu"
-            >
-              {NAVIGATION_LINKS.map((link, index) => (
-                <motion.a
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center gap-8">
+              {NAVIGATION_LINKS.map((link) => (
+                <div
                   key={link.label}
-                  href={link.href}
-                  onClick={handleMobileLinkClick}
-                  className="relative text-sm font-medium text-charcoal/80 hover:text-charcoal transition-colors duration-300 uppercase tracking-wider after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-charcoal after:scale-x-0 after:origin-center after:transition-transform after:duration-300 hover:after:scale-x-100"
-                  style={{ transitionDelay: `${index * 50}ms` }}
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter(link.label)}
+                  onMouseLeave={handleMouseLeave}
                 >
-                  {link.label}
-                </motion.a>
-              ))}
-            </motion.div>
+                  <Link
+                    to={link.href.replace("#", "") || "/"}
+                    className="flex items-center gap-1 py-2 text-sm font-body font-medium text-charcoal/80 hover:text-charcoal transition-colors"
+                  >
+                    {link.label}
+                    {link.submenu && <ChevronDown className="w-3 h-3" />}
+                  </Link>
 
-            {/* Right - Icons */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex items-center gap-6 flex-shrink-0"
-            >
+                  {/* Dropdown */}
+                  <AnimatePresence>
+                    {link.submenu && activeDropdown === link.label && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 w-48 bg-white shadow-lg border border-warm-beige/20 py-2"
+                      >
+                        {link.submenu.map((item) => (
+                          <Link
+                            key={item.label}
+                            to={item.href}
+                            className="block px-4 py-2 text-sm text-charcoal/70 hover:text-charcoal hover:bg-warm-beige/5 transition-colors"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+
+            {/* Right Icons */}
+            <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={onSearchClick}
-                className="relative p-2 text-charcoal/60 hover:text-charcoal transition-colors duration-300 rounded-full hover:bg-warm-beige/10"
+                className="p-2 text-charcoal/60 hover:text-charcoal transition-colors"
                 aria-label="Search"
               >
-                <Search className="w-5 h-5" strokeWidth={2} />
+                <Search className="w-5 h-5" />
               </button>
 
-              <button
-                onClick={onWishlistClick}
-                className="relative p-2 text-charcoal/60 hover:text-charcoal transition-colors duration-300 rounded-full hover:bg-warm-beige/10"
+              <Link
+                to="/wishlist"
+                className="p-2 text-charcoal/60 hover:text-charcoal transition-colors relative"
                 aria-label="Wishlist"
               >
-                <Heart className="w-5 h-5" strokeWidth={2} />
-              </button>
+                <Heart className="w-5 h-5" />
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-charcoal text-white text-[10px] rounded-full flex items-center justify-center">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
 
               <button
                 onClick={onCartClick}
-                className="relative p-2 text-charcoal/60 hover:text-charcoal transition-colors duration-300 rounded-full hover:bg-warm-beige/10"
-                aria-label={`Shopping bag, ${cartCount} items`}
+                className="p-2 text-charcoal/60 hover:text-charcoal transition-colors relative"
+                aria-label="Shopping bag"
               >
-                <ShoppingBag className="w-5 h-5" strokeWidth={2} />
+                <ShoppingBag className="w-5 h-5" />
                 {cartCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-charcoal text-white text-xs font-medium rounded-full flex items-center justify-center"
-                  >
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-charcoal text-white text-xs rounded-full flex items-center justify-center">
                     {cartCount > 99 ? "99+" : cartCount}
-                  </motion.span>
+                  </span>
                 )}
               </button>
 
-              {/* Mobile Menu Button */}
+              <Link
+                to="/login"
+                className="hidden md:flex p-2 text-charcoal/60 hover:text-charcoal transition-colors"
+                aria-label="Account"
+              >
+                <User className="w-5 h-5" />
+              </Link>
+
+              {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-charcoal hover:text-charcoal/60 transition-colors rounded-full hover:bg-warm-beige/10"
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                aria-expanded={mobileMenuOpen}
+                className="lg:hidden p-2 text-charcoal"
+                aria-label="Menu"
               >
-                {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={2} /> : <Menu className="w-6 h-6" strokeWidth={2} />}
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
-            </motion.div>
+            </div>
           </div>
-
-          {/* Mobile Menu */}
-          <AnimatePresence>
-            {mobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="md:hidden overflow-hidden border-t border-warm-beige/20 pt-6 mt-6"
-              >
-                <div className="flex flex-col gap-4">
-                  {NAVIGATION_LINKS.map((link, index) => (
-                    <motion.a
-                      key={link.label}
-                      href={link.href}
-                      onClick={handleMobileLinkClick}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className="text-lg font-medium text-charcoal/80 hover:text-charcoal transition-colors duration-300 uppercase tracking-wider py-2 border-b border-warm-beige/10"
-                    >
-                      {link.label}
-                    </motion.a>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </nav>
-      </motion.header>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden border-t border-warm-beige/20 bg-white"
+            >
+              <div className="px-4 py-6 space-y-1">
+                {NAVIGATION_LINKS.map((link) => (
+                  <Link
+                    key={link.label}
+                    to={link.href.replace("#", "") || "/"}
+                    className="block py-3 text-base font-body font-medium text-charcoal/80 hover:text-charcoal border-b border-warm-beige/10"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <Link
+                  to="/contact"
+                  className="block py-3 text-base font-body font-medium text-charcoal/80 hover:text-charcoal border-b border-warm-beige/10"
+                >
+                  Contact
+                </Link>
+                <Link
+                  to="/login"
+                  className="block py-3 text-base font-body font-medium text-charcoal/80 hover:text-charcoal"
+                >
+                  My Account
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
     </>
   );
 }
