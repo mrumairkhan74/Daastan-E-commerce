@@ -38,7 +38,7 @@ export default function HomePage() {
           >
             <source src="/videos/hero.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/60" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 py-32 relative z-10">
