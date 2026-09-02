@@ -7,14 +7,19 @@ import { BRAND_CONFIG } from "../data/products";
 export default function Hero({ onShopClick, onStoryClick }) {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+      {/* Background Video/Image */}
       <div className="absolute inset-0 -z-10">
-        <img
-          src="/images/lifestyle/hero.jpg"
-          alt="DASTAN Fashion"
-          className="w-full h-full object-cover opacity-20"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/90 to-white" />
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+          poster="/images/lifestyle/hero.jpg"
+        >
+          <source src="/videos/hero.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/80 to-white/90" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-32 relative z-10">
