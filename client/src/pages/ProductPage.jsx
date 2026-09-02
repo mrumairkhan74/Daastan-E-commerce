@@ -1,26 +1,46 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, Share2, Truck, RefreshCw, Shield, Check, Minus, Plus, Ruler, ChevronRight } from "lucide-react";
+import {
+  Heart,
+  Share2,
+  Truck,
+  RefreshCw,
+  Shield,
+  Check,
+  Minus,
+  Plus,
+  Ruler,
+  ChevronRight,
+  ZoomIn,
+} from "lucide-react";
 import { SHIRT_PRODUCTS, JEWELRY_PRODUCTS } from "../data/products";
 import { useCart } from "../context/CartContext";
 import { useToast } from "../context/ToastContext";
+import { useRecentlyViewed } from "../context/RecentlyViewedContext";
 import ProductCard from "../components/ProductCard";
+import ProductReviews from "../components/ProductReviews";
 
 export default function ProductPage() {
   const { id } = useParams();
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const { success, error } = useToast();
+  const { addToRecentlyViewed } = useRecentlyViewed();
 
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [showSizeCalculator, setShowSizeCalculator] = useState(false);
+  const [showZoom, setShowZoom] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const imageRef = useRef(null);
 
   const allProducts = [...SHIRT_PRODUCTS, ...JEWELRY_PRODUCTS];
-  const product = allProducts.find(p => p.id === id);
+  const product = allProducts.find((p) => p.id === id);
   const isJewelry = product?.category === "jewelry";
   const isShirt = product?.category === "shirts";
 
@@ -29,7 +49,18 @@ export default function ProductPage() {
     setSelectedSize(null);
     setQuantity(1);
     setSelectedImage(0);
-  }, [id]);
+    if (product) {
+      addToRecentlyViewed(product.id);
+    }
+  }, [id, product, addToRecentlyViewed]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setStickyVisible(window.scrollY > 500);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   if (!product) {
     return (
@@ -67,24 +98,35 @@ export default function ProductPage() {
     }
   };
 
-  const frontImage = isJewelry 
-    ? `/images/jewelry/${product.id}.jpg` 
+  const handleMouseMove = (e) => {
+    if (!imageRef.current) return;
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPosition({ x, y });
+  };
+
+  const frontImage = isJewelry
+    ? `/images/jewelry/${product.id}.jpg`
     : `/images/shirts/${product.id}-front.jpg`;
   const backImage = isJewelry ? null : `/images/shirts/${product.id}-back.jpg`;
 
   const relatedProducts = allProducts
-    .filter(p => p.category === product.category && p.id !== product.id)
+    .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
   return (
     <div className="min-h-screen">
-      {/* Breadcrumbs */}
       <div className="border-b border-warm-beige/20">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <nav className="flex items-center gap-2 text-sm font-body text-charcoal/50">
-            <Link to="/" className="hover:text-charcoal">Home</Link>
+            <Link to="/" className="hover:text-charcoal">
+              Home
+            </Link>
             <ChevronRight className="w-4 h-4" />
-            <Link to="/shop" className="hover:text-charcoal">Shop</Link>
+            <Link to="/shop" className="hover:text-charcoal">
+              Shop
+            </Link>
             <ChevronRight className="w-4 h-4" />
             <span className="text-charcoal">{product.name}</span>
           </nav>
@@ -93,29 +135,41 @@ export default function ProductPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Image Gallery */}
           <div className="space-y-4">
-            {/* Main Image */}
             <motion.div
               key={selectedImage}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="aspect-[3/4] bg-warm-beige/10 overflow-hidden"
+              ref={imageRef}
+              className="aspect-[3/4] bg-warm-beige/10 overflow-hidden relative cursor-crosshair"
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setShowZoom(true)}
+              onMouseLeave={() => setShowZoom(false)}
             >
               <img
-                src={selectedImage === 0 ? frontImage : (backImage || frontImage)}
+                src={selectedImage === 0 ? frontImage : backImage || frontImage}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-200 hover:scale-110"
+                style={{
+                  transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                }}
               />
+              <button
+                className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-full"
+                onClick={() => setShowZoom(!showZoom)}
+              >
+                <ZoomIn className="w-5 h-5" />
+              </button>
             </motion.div>
 
-            {/* Thumbnails */}
             {backImage && (
               <div className="flex gap-4">
                 <button
                   onClick={() => setSelectedImage(0)}
                   className={`w-20 h-24 border-2 transition-all ${
-                    selectedImage === 0 ? "border-charcoal" : "border-transparent opacity-60 hover:opacity-100"
+                    selectedImage === 0
+                      ? "border-charcoal"
+                      : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
                   <img src={frontImage} alt="Front" className="w-full h-full object-cover" />
@@ -123,7 +177,9 @@ export default function ProductPage() {
                 <button
                   onClick={() => setSelectedImage(1)}
                   className={`w-20 h-24 border-2 transition-all ${
-                    selectedImage === 1 ? "border-charcoal" : "border-transparent opacity-60 hover:opacity-100"
+                    selectedImage === 1
+                      ? "border-charcoal"
+                      : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
                   <img src={backImage} alt="Back" className="w-full h-full object-cover" />
@@ -132,13 +188,14 @@ export default function ProductPage() {
             )}
           </div>
 
-          {/* Product Info */}
           <div className="space-y-6">
-            {/* Badges */}
             {product.badges?.length > 0 && (
               <div className="flex gap-2">
-                {product.badges.map(badge => (
-                  <span key={badge} className="px-3 py-1 text-xs font-medium uppercase bg-charcoal text-white">
+                {product.badges.map((badge) => (
+                  <span
+                    key={badge}
+                    className="px-3 py-1 text-xs font-medium uppercase bg-charcoal text-white"
+                  >
                     {badge}
                   </span>
                 ))}
@@ -158,31 +215,40 @@ export default function ProductPage() {
 
             <p className="font-body text-charcoal/70 leading-relaxed">{product.description}</p>
 
-            {/* Color */}
             <div>
               <p className="font-body text-sm text-charcoal/50 uppercase tracking-wider mb-2">
                 Color: <span className="text-charcoal font-medium">{product.color}</span>
               </p>
-              <div 
-                className="w-8 h-8 rounded-full border-2 border-white shadow-lg" 
+              <div
+                className="w-8 h-8 rounded-full border-2 border-white shadow-lg"
                 style={{ backgroundColor: product.colorCode }}
               />
             </div>
 
-            {/* Size Selection - Only for shirts */}
             {isShirt && (
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <p className="font-body text-sm text-charcoal/50 uppercase tracking-wider">
-                    Size: {selectedSize && <span className="text-charcoal font-medium">{selectedSize}</span>}
+                    Size:{" "}
+                    {selectedSize && (
+                      <span className="text-charcoal font-medium">{selectedSize}</span>
+                    )}
                   </p>
-                  <button
-                    onClick={() => setShowSizeGuide(true)}
-                    className="flex items-center gap-1 text-sm text-charcoal/50 hover:text-charcoal"
-                  >
-                    <Ruler className="w-4 h-4" />
-                    Size Guide
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowSizeCalculator(true)}
+                      className="flex items-center gap-1 text-sm text-charcoal/50 hover:text-charcoal"
+                    >
+                      <Ruler className="w-4 h-4" />
+                      Size Calculator
+                    </button>
+                    <button
+                      onClick={() => setShowSizeGuide(true)}
+                      className="flex items-center gap-1 text-sm text-charcoal/50 hover:text-charcoal"
+                    >
+                      Size Guide
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes?.map((size) => (
@@ -205,9 +271,10 @@ export default function ProductPage() {
               </div>
             )}
 
-            {/* Quantity */}
             <div>
-              <p className="font-body text-sm text-charcoal/50 uppercase tracking-wider mb-3">Quantity</p>
+              <p className="font-body text-sm text-charcoal/50 uppercase tracking-wider mb-3">
+                Quantity
+              </p>
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-warm-beige/30">
                   <button
@@ -228,7 +295,6 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex gap-4">
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -256,7 +322,6 @@ export default function ProductPage() {
               </button>
             </div>
 
-            {/* Features */}
             <div className="space-y-3 pt-6 border-t border-warm-beige/20">
               <div className="flex items-center gap-3 text-sm text-charcoal/70">
                 <Truck className="w-4 h-4" />
@@ -272,9 +337,10 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Product Details */}
             <div className="pt-6 border-t border-warm-beige/20">
-              <h3 className="font-body text-sm font-medium text-charcoal uppercase tracking-wider mb-4">Product Details</h3>
+              <h3 className="font-body text-sm font-medium text-charcoal uppercase tracking-wider mb-4">
+                Product Details
+              </h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-charcoal/50">Fabric</p>
@@ -297,7 +363,8 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Related Products */}
+        <ProductReviews productId={product.id} productName={product.name} />
+
         {relatedProducts.length > 0 && (
           <section className="mt-20 pt-12 border-t border-warm-beige/20">
             <h2 className="font-display text-2xl md:text-3xl text-charcoal mb-8">You May Also Like</h2>
@@ -306,7 +373,7 @@ export default function ProductPage() {
                 <ProductCard
                   key={p.id}
                   product={p}
-                  onQuickView={() => window.location.href = `/product/${p.id}`}
+                  onQuickView={() => (window.location.href = `/product/${p.id}`)}
                   onAddToCart={() => {
                     const size = p.sizes?.[1] || p.sizes?.[0];
                     if (size) {
@@ -323,41 +390,172 @@ export default function ProductPage() {
         )}
       </div>
 
-      {/* Size Guide Modal */}
-      {showSizeGuide && (
-        <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowSizeGuide(false)}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white max-w-lg w-full p-6"
-            onClick={e => e.stopPropagation()}
+      <motion.div
+        initial={{ y: 100 }}
+        animate={{ y: stickyVisible ? 0 : 100 }}
+        className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 p-4 z-40 md:hidden"
+      >
+        <div className="flex items-center justify-between gap-4 max-w-lg mx-auto">
+          <div>
+            <p className="font-medium text-sm">{product.name}</p>
+            <p className="font-display">PKR {product.price.toLocaleString()}</p>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            className="px-6 py-3 bg-charcoal text-white font-medium text-sm"
           >
-            <h3 className="font-display text-xl mb-4">Size Guide</h3>
-            <table className="w-full text-sm mb-4">
-              <thead className="bg-warm-beige/10">
-                <tr>
-                  <th className="p-2 text-left">Size</th>
-                  <th className="p-2 text-left">Chest</th>
-                  <th className="p-2 text-left">Length</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td className="p-2">S</td><td className="p-2">36-38"</td><td className="p-2">28"</td></tr>
-                <tr><td className="p-2">M</td><td className="p-2">38-40"</td><td className="p-2">29"</td></tr>
-                <tr><td className="p-2">L</td><td className="p-2">40-42"</td><td className="p-2">30"</td></tr>
-                <tr><td className="p-2">XL</td><td className="p-2">42-44"</td><td className="p-2">31"</td></tr>
-                <tr><td className="p-2">XXL</td><td className="p-2">44-46"</td><td className="p-2">32"</td></tr>
-              </tbody>
-            </table>
-            <button
-              onClick={() => setShowSizeGuide(false)}
-              className="w-full py-2 border border-charcoal text-charcoal font-body text-sm uppercase tracking-wider hover:bg-charcoal hover:text-white transition-all"
-            >
-              Close
-            </button>
-          </motion.div>
+            Add to Bag
+          </button>
         </div>
+      </motion.div>
+
+      {showSizeGuide && (
+        <SizeGuideModal onClose={() => setShowSizeGuide(false)} />
       )}
+
+      {showSizeCalculator && (
+        <SizeCalculatorModal onClose={() => setShowSizeCalculator(false)} />
+      )}
+    </div>
+  );
+}
+
+function SizeGuideModal({ onClose }) {
+  return (
+    <div
+      className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="font-display text-xl mb-4">Size Guide</h3>
+        <p className="text-sm text-neutral-600 mb-4">
+         丈量方式：將布料平放測量，可能有1-2cm誤差
+        </p>
+        <table className="w-full text-sm mb-4">
+          <thead className="bg-warm-beige/10">
+            <tr>
+              <th className="p-2 text-left">Size</th>
+              <th className="p-2 text-left">Chest</th>
+              <th className="p-2 text-left">Length</th>
+              <th className="p-2 text-left">Shoulder</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="p-2">S</td>
+              <td className="p-2">36-38"</td>
+              <td className="p-2">28"</td>
+              <td className="p-2">17"</td>
+            </tr>
+            <tr>
+              <td className="p-2">M</td>
+              <td className="p-2">38-40"</td>
+              <td className="p-2">29"</td>
+              <td className="p-2">18"</td>
+            </tr>
+            <tr>
+              <td className="p-2">L</td>
+              <td className="p-2">40-42"</td>
+              <td className="p-2">30"</td>
+              <td className="p-2">19"</td>
+            </tr>
+            <tr>
+              <td className="p-2">XL</td>
+              <td className="p-2">42-44"</td>
+              <td className="p-2">31"</td>
+              <td className="p-2">20"</td>
+            </tr>
+            <tr>
+              <td className="p-2">XXL</td>
+              <td className="p-2">44-46"</td>
+              <td className="p-2">32"</td>
+              <td className="p-2">21"</td>
+            </tr>
+          </tbody>
+        </table>
+        <button
+          onClick={onClose}
+          className="w-full py-2 border border-charcoal text-charcoal font-body text-sm uppercase tracking-wider hover:bg-charcoal hover:text-white transition-all"
+        >
+          Close
+        </button>
+      </motion.div>
+    </div>
+  );
+}
+
+function SizeCalculatorModal({ onClose }) {
+  const [chest, setChest] = useState("");
+  const [length, setLength] = useState("");
+  const [recommended, setRecommended] = useState(null);
+
+  const calculate = () => {
+    const c = parseFloat(chest);
+    if (isNaN(c)) return;
+
+    let size = "M";
+    if (c < 38) size = "S";
+    else if (c >= 38 && c < 40) size = "M";
+    else if (c >= 40 && c < 42) size = "L";
+    else if (c >= 42 && c < 44) size = "XL";
+    else size = "XXL";
+
+    setRecommended(size);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white max-w-md w-full p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="font-display text-xl mb-4">Size Calculator</h3>
+        <p className="text-sm text-neutral-600 mb-4">
+          Enter your chest measurement (in inches) to find your recommended size.
+        </p>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Chest (inches)</label>
+          <input
+            type="number"
+            value={chest}
+            onChange={(e) => setChest(e.target.value)}
+            placeholder="e.g., 40"
+            className="w-full px-4 py-3 border border-neutral-300 focus:border-charcoal focus:outline-none"
+          />
+        </div>
+
+        <button
+          onClick={calculate}
+          className="w-full py-3 bg-charcoal text-white font-medium mb-4 hover:bg-charcoal/90"
+        >
+          Calculate
+        </button>
+
+        {recommended && (
+          <div className="text-center p-4 bg-warm-beige/10">
+            <p className="text-sm text-neutral-600 mb-1">Recommended Size</p>
+            <p className="font-display text-3xl">{recommended}</p>
+          </div>
+        )}
+
+        <button
+          onClick={onClose}
+          className="w-full py-2 border border-neutral-300 mt-4 text-sm hover:bg-neutral-100"
+        >
+          Close
+        </button>
+      </motion.div>
     </div>
   );
 }

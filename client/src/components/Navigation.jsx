@@ -5,10 +5,12 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Heart, ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { NAVIGATION_LINKS, BRAND_CONFIG } from "../data/products";
 
-export default function Navigation({ onCartClick, onSearchClick, onSizeGuideClick }) {
+export default function Navigation({ onCartClick, onSearchClick, onSizeGuideClick, onAuthClick }) {
   const { cartCount, wishlist } = useCart();
+  const { user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -131,13 +133,23 @@ export default function Navigation({ onCartClick, onSearchClick, onSizeGuideClic
                 )}
               </button>
 
-              <Link
-                to="/login"
-                className="hidden md:flex p-2 text-charcoal/60 hover:text-charcoal transition-colors"
-                aria-label="Account"
-              >
-                <User className="w-5 h-5" />
-              </Link>
+              {user ? (
+                <Link
+                  to="/account"
+                  className="hidden md:flex p-2 text-charcoal/60 hover:text-charcoal transition-colors"
+                  aria-label="Account"
+                >
+                  <User className="w-5 h-5" />
+                </Link>
+              ) : (
+                <button
+                  onClick={() => onAuthClick("login")}
+                  className="hidden md:flex p-2 text-charcoal/60 hover:text-charcoal transition-colors"
+                  aria-label="Account"
+                >
+                  <User className="w-5 h-5" />
+                </button>
+              )}
 
               {/* Mobile Menu Toggle */}
               <button
@@ -176,12 +188,22 @@ export default function Navigation({ onCartClick, onSearchClick, onSizeGuideClic
                 >
                   Contact
                 </Link>
-                <Link
-                  to="/login"
-                  className="block py-3 text-base font-body font-medium text-charcoal/80 hover:text-charcoal"
-                >
-                  My Account
-                </Link>
+                {user ? (
+                  <Link
+                    to="/account"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block py-3 text-base font-body font-medium text-charcoal/80 hover:text-charcoal border-b border-warm-beige/10"
+                  >
+                    My Account
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => { onAuthClick("login"); setMobileMenuOpen(false); }}
+                    className="block py-3 text-base font-body font-medium text-charcoal/80 hover:text-charcoal w-full text-left border-b border-warm-beige/10"
+                  >
+                    My Account
+                  </button>
+                )}
               </div>
             </motion.div>
           )}
