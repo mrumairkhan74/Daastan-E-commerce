@@ -1,9 +1,9 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, ArrowRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { ALL_PRODUCTS } from "../data/products";
+import { Link } from "react-router-dom";
+import { Search, X, ArrowRight } from "lucide-react";
+import { SHIRT_PRODUCTS, JEWELRY_PRODUCTS } from "../data/products";
 
 export default function SearchModal({ isOpen, onClose }) {
   const [query, setQuery] = useState("");
@@ -11,10 +11,26 @@ export default function SearchModal({ isOpen, onClose }) {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
+    if (isOpen) {
+      setQuery("");
+      setResults([]);
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -22,158 +38,105 @@ export default function SearchModal({ isOpen, onClose }) {
       return;
     }
 
+    const allProducts = [...SHIRT_PRODUCTS, ...JEWELRY_PRODUCTS];
     const searchTerm = query.toLowerCase();
-    const filtered = ALL_PRODUCTS.filter(p => 
-      p.name.toLowerCase().includes(searchTerm) ||
-      p.color.toLowerCase().includes(searchTerm) ||
-      p.category.toLowerCase().includes(searchTerm) ||
-      (p.description && p.description.toLowerCase().includes(searchTerm)) ||
-      (p.material && p.material.toLowerCase().includes(searchTerm)) ||
-      (p.style && p.style.toLowerCase().includes(searchTerm))
+
+    const filtered = allProducts.filter(
+      (product) =>
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.color?.toLowerCase().includes(searchTerm) ||
+        product.description.toLowerCase().includes(searchTerm) ||
+        product.category.toLowerCase().includes(searchTerm)
     );
+
     setResults(filtered);
   }, [query]);
 
-  const handleClose = () => {
-    setQuery("");
-    setResults([]);
-    onClose();
-  };
-
-  const handleResultClick = () => {
-    handleClose();
-  };
+  if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 flex items-start justify-center pt-32"
-          onClick={handleClose}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -30, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-2xl mx-4 shadow-2xl"
-          >
-            {/* Search Input */}
-            <div className="flex items-center border-b border-warm-beige/20">
-              <Search className="w-6 h-6 text-charcoal/30 ml-6 flex-shrink-0" strokeWidth={2} />
-              <input
-                ref={inputRef}
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search for products..."
-                className="flex-1 px-4 py-6 font-body text-lg text-charcoal placeholder-charcoal/30 focus:outline-none"
-              />
-              <button
-                onClick={handleClose}
-                className="p-4 text-charcoal/40 hover:text-charcoal transition-colors"
-                aria-label="Close search"
-              >
-                <X className="w-6 h-6" strokeWidth={2} />
-              </button>
-            </div>
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-            {/* Results */}
-            {query && (
-              <div className="max-h-96 overflow-y-auto">
-                {results.length > 0 ? (
-                  <div className="p-4">
-                    <p className="font-body text-xs text-charcoal/50 uppercase tracking-wider mb-4 px-2">
-                      {results.length} result{results.length !== 1 ? "s" : ""} found
-                    </p>
-                    <div className="space-y-2">
-                      {results.map((product) => (
-                        <motion.a
-                          key={product.id}
-                          href={`#${product.category === 'shirts' ? 'shop' : 'jewelry'}`}
-                          onClick={handleResultClick}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="flex items-center gap-4 p-3 hover:bg-warm-beige/10 transition-colors group"
-                        >
-                          <div 
-                            className="w-12 h-16 rounded-none shadow-sm flex-shrink-0" 
-                            style={{ backgroundColor: product.colorCode || "#E8E0D0" }}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-display text-sm text-charcoal group-hover:text-charcoal/70 transition-colors truncate">
-                              {product.name}
-                            </p>
-                            <p className="font-body text-xs text-charcoal/50 truncate">
-                              {product.color} • PKR {product.price.toLocaleString()}
-                            </p>
-                          </div>
-                          <ArrowRight className="w-4 h-4 text-charcoal/30 group-hover:text-charcoal group-hover:translate-x-1 transition-all" strokeWidth={2} />
-                        </motion.a>
-                      ))}
+      <div
+        className="relative w-full max-w-2xl mx-4 bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center border-b border-neutral-200">
+          <Search className="w-5 h-5 text-neutral-400 ml-5" />
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Search products..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1 px-4 py-5 text-lg outline-none placeholder:text-neutral-400"
+          />
+          <button
+            onClick={onClose}
+            className="p-4 hover:bg-neutral-100 transition-colors"
+          >
+            <X className="w-5 h-5 text-neutral-500" />
+          </button>
+        </div>
+
+        {results.length > 0 && (
+          <div className="max-h-[60vh] overflow-y-auto">
+            <div className="px-5 py-3 text-xs font-semibold tracking-wider text-neutral-400 uppercase">
+              {results.length} result{results.length !== 1 ? "s" : ""}
+            </div>
+            <div className="border-t border-neutral-100">
+              {results.map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/product/${product.id}`}
+                  onClick={onClose}
+                  className="flex items-center justify-between px-5 py-4 hover:bg-neutral-50 transition-colors group"
+                >
+                  <div className="flex-1">
+                    <div className="font-medium text-sm tracking-wide">
+                      {product.name}
+                    </div>
+                    <div className="text-xs text-neutral-500 mt-0.5">
+                      {product.color || product.material} · Rs. {product.price.toLocaleString()}
                     </div>
                   </div>
-                ) : (
-                  <div className="p-12 text-center">
-                    <Search className="w-12 h-12 text-charcoal/20 mx-auto mb-4" strokeWidth={1.5} />
-                    <p className="font-display text-lg text-charcoal/60 mb-2">No results found</p>
-                    <p className="font-body text-sm text-charcoal/40">
-                      Try searching for "black", "navy", "jewelry", or "ring"
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+                  <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-600 transition-colors" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
-            {/* Popular Searches */}
-            {!query && (
-              <div className="p-6">
-                <p className="font-body text-xs text-charcoal/50 uppercase tracking-wider mb-4">
-                  Popular Searches
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["black", "navy", "ivory", "jewelry", "ring", "chain", "oversized"].map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => setQuery(term)}
-                      className="px-4 py-2 bg-warm-beige/10 hover:bg-warm-beige/20 text-charcoal/70 hover:text-charcoal font-body text-sm transition-colors rounded-none capitalize"
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+        {query.trim() && results.length === 0 && (
+          <div className="px-5 py-12 text-center text-neutral-500">
+            <p>No products found for "{query}"</p>
+            <p className="text-sm mt-2">Try searching for "Chapter", "Ring", "Chain", or "Shirt"</p>
+          </div>
+        )}
 
-            {/* Quick Links */}
-            {!query && (
-              <div className="p-6 border-t border-warm-beige/20">
-                <p className="font-body text-xs text-charcoal/50 uppercase tracking-wider mb-4">
-                  Quick Links
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <a href="#shop" onClick={handleClose} className="font-body text-sm text-charcoal/70 hover:text-charcoal transition-colors">
-                    Shop All
-                  </a>
-                  <a href="#jewelry" onClick={handleClose} className="font-body text-sm text-charcoal/70 hover:text-charcoal transition-colors">
-                    Jewelry
-                  </a>
-                  <a href="#our-story" onClick={handleClose} className="font-body text-sm text-charcoal/70 hover:text-charcoal transition-colors">
-                    Our Story
-                  </a>
-                  <a href="#lookbook" onClick={handleClose} className="font-body text-sm text-charcoal/70 hover:text-charcoal transition-colors">
-                    Lookbook
-                  </a>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        {!query.trim() && (
+          <div className="px-5 py-8">
+            <div className="text-xs font-semibold tracking-wider text-neutral-400 uppercase mb-3">
+              Popular Searches
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {["Chapter I", "Chapter III", "Ring", "Chain", "Pearl", "Oversized"].map((term) => (
+                <button
+                  key={term}
+                  onClick={() => setQuery(term)}
+                  className="px-3 py-1.5 text-sm border border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50 transition-colors"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
