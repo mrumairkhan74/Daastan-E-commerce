@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { BRAND_CONFIG } from "../data/products";
+// import { BRAND_CONFIG } from "../data/products";
 
 export default function Hero({ onShopClick, onStoryClick }) {
   return (
@@ -15,11 +15,10 @@ export default function Hero({ onShopClick, onStoryClick }) {
           muted
           playsInline
           className="w-full h-full object-cover"
-          poster="/images/lifestyle/hero.jpg"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/80 to-white/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white/30" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-32 relative z-10">
