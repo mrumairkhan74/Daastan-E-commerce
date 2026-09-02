@@ -182,12 +182,6 @@ export default function Navigation({ onCartClick, onSearchClick, onSizeGuideClic
                     {link.label}
                   </Link>
                 ))}
-                <Link
-                  to="/contact"
-                  className="block py-3 text-base font-body font-medium text-charcoal/80 hover:text-charcoal border-b border-warm-beige/10"
-                >
-                  Contact
-                </Link>
                 {user ? (
                   <Link
                     to="/account"
