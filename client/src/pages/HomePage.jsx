@@ -34,40 +34,40 @@ export default function HomePage() {
             loop
             muted
             playsInline
-            className="w-full h-full object-cover opacity-50"
+            className="w-full h-full object-cover"
           >
             <source src="/videos/hero.mp4" type="video/mp4" />
           </video>
-          {/* Vignette from bottom - black fade for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          {/* Strong vignette from bottom for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-6 py-32 relative z-10">
           <motion.div className="max-w-2xl">
-            <span className="font-urdu text-4xl md:text-6xl text-charcoal/60 block mb-4">داستان</span>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-charcoal mb-4">
+            <span className="font-urdu text-4xl md:text-6xl text-white/80 block mb-4">داستان</span>
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-white mb-4">
               DASTAN
             </h1>
-            <p className="font-body text-sm text-charcoal/50 uppercase tracking-widest mb-6">by Ahmedullah</p>
-            <p className="font-display text-2xl md:text-3xl text-charcoal/80 italic mb-8">
+            <p className="font-body text-sm text-white/70 uppercase tracking-widest mb-6">by Ahmedullah</p>
+            <p className="font-display text-2xl md:text-3xl text-white/90 italic mb-8">
               Every Thread, A Story.
             </p>
-            <p className="font-body text-base text-charcoal/60 mb-10 max-w-lg leading-relaxed">
+            <p className="font-body text-base text-white/80 mb-10 max-w-lg leading-relaxed">
               Born from struggle, shaped by ambition, and written one chapter at a time. 
               DASTAN is a contemporary clothing house built for those who are still becoming.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/shop"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-charcoal text-white font-body text-sm uppercase tracking-widest hover:bg-charcoal/90 transition-colors"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-charcoal font-body text-sm uppercase tracking-widest hover:bg-white/90 transition-colors"
               >
                 Shop Now
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/shop?collection=shirts"
-                className="inline-flex items-center gap-2 px-8 py-4 border-2 border-charcoal text-charcoal font-body text-sm uppercase tracking-widest hover:bg-charcoal hover:text-white transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white/50 text-white font-body text-sm uppercase tracking-widest hover:bg-white/10 hover:border-white transition-all"
               >
                 View Collection
               </Link>
