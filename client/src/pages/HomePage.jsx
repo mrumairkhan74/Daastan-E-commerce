@@ -26,13 +26,18 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <img
-            src="/images/lifestyle/hero.jpg"
-            alt="DASTAN"
-            className="w-full h-full object-cover opacity-30"
-          />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+            poster="/images/lifestyle/hero.jpg"
+          >
+            <source src="/videos/hero.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/70" />
         </div>
 
