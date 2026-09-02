@@ -18,7 +18,8 @@ export default function Hero({ onShopClick, onStoryClick }) {
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white/30" />
+       {/* Comment out or reduce opacity */}
+<div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/10" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-32 relative z-10">
