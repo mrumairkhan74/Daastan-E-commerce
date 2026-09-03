@@ -20,7 +20,7 @@ import AdminProducts from "./pages/admin/Products";
 import AdminOrders from "./pages/admin/Orders";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminAnalytics from "./pages/admin/Analytics";
-
+// import AdminSettings from "./pages/admin/Setting";
 function App() {
   return (
     <ToastProvider>
@@ -44,7 +44,7 @@ function App() {
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="customers" element={<AdminCustomers />} />
                 <Route path="analytics" element={<AdminAnalytics />} />
-                <Route path="settings" element={<AdminSettings />} />
+                {/* <Route path="settings" element={<AdminSettings />} /> */}
               </Route>
             </Routes>
           </CartProvider>
