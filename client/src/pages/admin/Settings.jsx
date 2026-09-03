@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Save, Bell, Shield, Globe, Palette, Database, Key, Moon, Sun } from "lucide-react";
+import { Save, Bell, Shield, Globe, Palette, Database, Key, Moon, Sun, Plus } from "lucide-react";
 
 const SETTINGS_TABS = [
   { id: "general", label: "General", icon: Globe },

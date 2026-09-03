@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Plus,
@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
+  X,
 } from "lucide-react";
 
 const MOCK_PRODUCTS = [
