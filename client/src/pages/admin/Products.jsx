@@ -15,6 +15,9 @@ import {
   ChevronUp,
   Loader2,
   X,
+  RotateCcw,
+  Trash,
+  AlertTriangle,
 } from "lucide-react";
 
 const MOCK_PRODUCTS = [
@@ -28,11 +31,17 @@ const MOCK_PRODUCTS = [
   { id: "8", name: "ADAA PEARL", category: "Jewelry", price: 1699, stock: 15, status: "Active", image: "/images/jewelry/adaa-pearl.jpg" },
 ];
 
+const DELETED_PRODUCTS = [
+  { id: "9", name: "DASTAN — CHAPTER VI (Deleted)", category: "Shirts", price: 1499, stock: 0, status: "Deleted", deletedAt: "2024-01-10", image: "/images/shirts/chapter-6-front.jpg" },
+  { id: "10", name: "OLD JEWELRY (Deleted)", category: "Jewelry", price: 999, stock: 0, status: "Deleted", deletedAt: "2024-01-05", image: "/images/jewelry/old-item.jpg" },
+];
+
 const STATUS_BADGES = {
   Active: "bg-green-100 text-green-700",
   "Low Stock": "bg-amber-100 text-amber-700",
   "Out of Stock": "bg-red-100 text-red-700",
   Draft: "bg-neutral-100 text-neutral-700",
+  Deleted: "bg-red-100 text-red-700",
 };
 
 export default function AdminProducts() {
@@ -43,8 +52,13 @@ export default function AdminProducts() {
   const [sortDir, setSortDir] = useState("asc");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [viewMode, setViewMode] = useState("active"); // 'active' or 'trash'
+  const [products, setProducts] = useState(MOCK_PRODUCTS);
+  const [deletedProducts, setDeletedProducts] = useState(DELETED_PRODUCTS);
 
-  const filteredProducts = MOCK_PRODUCTS.filter((p) => {
+  const currentProducts = viewMode === "active" ? products : deletedProducts;
+
+  const filteredProducts = currentProducts.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
     const matchesStatus = statusFilter === "all" || p.status === statusFilter;
@@ -76,6 +90,31 @@ export default function AdminProducts() {
     setShowModal(true);
   };
 
+  const softDeleteProduct = (productId) => {
+    const product = products.find(p => p.id === productId);
+    if (product && window.confirm(`Move "${product.name}" to trash?`)) {
+      const deletedProduct = { ...product, status: "Deleted", deletedAt: new Date().toISOString().split('T')[0] };
+      setProducts(products.filter(p => p.id !== productId));
+      setDeletedProducts([deletedProduct, ...deletedProducts]);
+    }
+  };
+
+  const restoreProduct = (productId) => {
+    const product = deletedProducts.find(p => p.id === productId);
+    if (product && window.confirm(`Restore "${product.name}"?`)) {
+      const restoredProduct = { ...product, status: "Active", deletedAt: null };
+      setDeletedProducts(deletedProducts.filter(p => p.id !== productId));
+      setProducts([restoredProduct, ...products]);
+    }
+  };
+
+  const permanentDelete = (productId) => {
+    const product = deletedProducts.find(p => p.id === productId);
+    if (product && window.confirm(`PERMANENTLY delete "${product.name}"? This cannot be undone.`)) {
+      setDeletedProducts(deletedProducts.filter(p => p.id !== productId));
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -84,13 +123,33 @@ export default function AdminProducts() {
           <h1 className="font-display text-3xl text-charcoal">Products</h1>
           <p className="font-body text-sm text-neutral-500 mt-1">Manage your product catalog</p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-charcoal text-white font-body text-sm rounded-lg hover:bg-charcoal/90 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Product
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center bg-neutral-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode("active")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                viewMode === "active" ? "bg-white text-charcoal shadow-sm" : "text-neutral-500 hover:text-charcoal"
+              }`}
+            >
+              Active <span className="ml-1 px-2 py-0.5 text-xs bg-charcoal text-white rounded-full">{filteredProducts.length}</span>
+            </button>
+            <button
+              onClick={() => setViewMode("trash")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                viewMode === "trash" ? "bg-white text-charcoal shadow-sm" : "text-neutral-500 hover:text-charcoal"
+              }`}
+            >
+              Trash <span className="ml-1 px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">{deletedProducts.length}</span>
+            </button>
+          </div>
+          <button
+            onClick={openCreateModal}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-charcoal text-white font-body text-sm rounded-lg hover:bg-charcoal/90 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Product
+          </button>
+        </div>
       </motion.div>
 
       {/* Filters */}
@@ -208,12 +267,25 @@ export default function AdminProducts() {
                       <button className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="View">
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button onClick={() => openEditModal(product)} className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="Edit">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {viewMode === "active" ? (
+                        <>
+                          <button onClick={() => openEditModal(product)} className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="Edit">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => softDeleteProduct(product.id)} className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Move to Trash">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => restoreProduct(product.id)} className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors" title="Restore">
+                            <RotateCcw className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => permanentDelete(product.id)} className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Delete Permanently">
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </motion.tr>

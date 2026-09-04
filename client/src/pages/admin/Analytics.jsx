@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { TrendingUp, Users, ShoppingCart, DollarSign, Clock, MapPin } from "lucide-react";
+import { TrendingUp, Users, ShoppingCart, DollarSign, Clock, MapPin, Activity, Eye, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 const ANALYTICS_DATA = {
-  traffic: { total: 45230, change: "+12.5%", trend: "up", sources: [
+  traffic: { total: 45230, change: "+12.5%", trend: "up", today: 1234, realtime: 42, sources: [
     { source: "Direct", visits: 18500, percentage: 41 },
     { source: "Organic Search", visits: 12400, percentage: 27 },
     { source: "Social Media", visits: 8900, percentage: 20 },
@@ -37,7 +37,7 @@ const ANALYTICS_DATA = {
 };
 
 const METRICS = [
-  { label: "Total Visitors", value: "45,230", change: "+12.5%", trend: "up", icon: Users, color: "bg-blue-500" },
+  { label: "Today's Visitors", value: "1,234", change: "+18%", trend: "up", icon: Users, color: "bg-blue-500", realtime: 42 },
   { label: "Conversion Rate", value: "3.2%", change: "+0.4%", trend: "up", icon: TrendingUp, color: "bg-green-500" },
   { label: "Total Orders", value: "1,445", change: "+8%", trend: "up", icon: ShoppingCart, color: "bg-purple-500" },
   { label: "Avg Order Value", value: "PKR 1,969", change: "-2%", trend: "down", icon: DollarSign, color: "bg-amber-500" },
@@ -61,12 +61,39 @@ export default function AdminAnalytics() {
         </div>
       </motion.div>
 
+      {/* Real-time indicator */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+            <span className="font-body text-sm font-medium text-green-700">Live: 42 active users</span>
+          </div>
+          <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Today: 1,234 visitors</span>
+          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">This week: 8,542</span>
+          <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">This month: 32,100</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-neutral-500">
+          <Activity className="w-4 h-4" />
+          <span>Page views: 3,456 today</span>
+          <span className="mx-2">|</span>
+          <span>Bounce rate: 42%</span>
+          <span className="mx-2">|</span>
+          <span>Avg session: 4m 32s</span>
+        </div>
+      </motion.div>
+
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {METRICS.map((metric, i) => (
-          <motion.div key={metric.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }} className="bg-white rounded-xl p-6 border border-neutral-200">
+          <motion.div key={metric.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }} className="bg-white rounded-xl p-6 border border-neutral-200 relative">
+            <div className="absolute top-4 right-4">
+              <div className="flex items-center gap-1 text-xs font-medium text-green-600">
+                <ArrowUpRight className="w-3 h-3" />
+                <span>{metric.realtime} live</span>
+              </div>
+            </div>
             <div className="flex items-center justify-between">
               <div className={`p-3 rounded-xl ${metric.color}`}><metric.icon className="w-6 h-6 text-white" /></div>
-              <div className={`flex items-center gap-1 text-sm font-medium ${metric.trend === "up" ? "text-green-600" : "text-red-600"}`}>{metric.trend === "up" ? <TrendingUp className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />} <span>{metric.change}</span></div>
+              <div className={`flex items-center gap-1 text-sm font-medium ${metric.trend === "up" ? "text-green-600" : "text-red-600"}`}>{metric.trend === "up" ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />} <span>{metric.change}</span></div>
             </div>
             <div className="mt-4"><p className="font-display text-3xl text-charcoal">{metric.value}</p><p className="font-body text-sm text-neutral-500 mt-1">{metric.label}</p></div>
           </motion.div>

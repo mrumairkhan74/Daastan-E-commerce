@@ -19,12 +19,16 @@ import {
   Search,
   Sun,
   Moon,
+  MessageSquare,
+  ClipboardList,
+  Trash2,
 } from "lucide-react";
 
 const ADMIN_NAV = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { label: "Reviews", href: "/admin/reviews", icon: MessageSquare },
   { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Settings", href: "/admin/settings", icon: Settings },
