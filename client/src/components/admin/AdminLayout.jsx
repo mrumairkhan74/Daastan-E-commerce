@@ -22,22 +22,27 @@ import {
   MessageSquare,
   ClipboardList,
   Trash2,
+  CheckCircle,
+  AlertCircle,
+  Truck,
 } from "lucide-react";
 
-const ADMIN_NAV = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Products", href: "/admin/products", icon: Package },
-  { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { label: "Reviews", href: "/admin/reviews", icon: MessageSquare },
-  { label: "Customers", href: "/admin/customers", icon: Users },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
+const MOCK_NOTIFICATIONS = [
+  { id: "1", type: "order", title: "New Order", message: "ORD-2024-009 placed by Ahmed Khan", time: "2 min ago", read: false, icon: ShoppingCart, color: "text-blue-500" },
+  { id: "2", type: "low_stock", title: "Low Stock Alert", message: "DASTAN — CHAPTER IV only 5 left", time: "15 min ago", read: false, icon: AlertCircle, color: "text-amber-500" },
+  { id: "3", type: "review", title: "New Review", message: "5-star review for NAQSH RING", time: "1 hour ago", read: true, icon: MessageSquare, color: "text-green-500" },
+  { id: "4", type: "order", title: "Order Shipped", message: "ORD-2024-005 shipped via TCS", time: "3 hours ago", read: true, icon: Truck, color: "text-blue-500" },
+  { id: "5", type: "customer", title: "New Customer", message: "Zara Malik registered", time: "5 hours ago", read: true, icon: Users, color: "text-purple-500" },
 ];
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications] = useState(MOCK_NOTIFICATIONS);
   const location = useLocation();
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   useEffect(() => {
     setMobileOpen(false);
@@ -148,10 +153,60 @@ export default function AdminLayout() {
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="relative p-2 rounded-lg hover:bg-neutral-100">
-                <Bell className="w-5 h-5 text-neutral-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className="relative p-2 rounded-lg hover:bg-neutral-100"
+                >
+                  <Bell className="w-5 h-5 text-neutral-600" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+                
+                <AnimatePresence>
+                  {notifOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-lg border border-neutral-200 py-2 z-50"
+                    >
+                      <div className="px-4 py-3 border-b border-neutral-200 flex items-center justify-between">
+                        <h3 className="font-body text-sm font-medium text-charcoal">Notifications</h3>
+                        {unreadCount > 0 && (
+                          <button className="text-xs text-charcoal hover:underline">Mark all read</button>
+                        )}
+                      </div>
+                      <div className="max-h-80 overflow-y-auto">
+                        {notifications.map((notif) => (
+                          <button
+                            key={notif.id}
+                            className={`w-full px-4 py-3 hover:bg-neutral-50 transition-colors ${!notif.read ? "bg-blue-50" : ""}`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-lg bg-neutral-100 ${notif.color}`}>
+                                <notif.icon className="w-4 h-4" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-body text-sm font-medium text-charcoal">{notif.title}</p>
+                                <p className="font-body text-xs text-neutral-500 truncate">{notif.message}</p>
+                                <p className="font-body text-xs text-neutral-400 mt-1">{notif.time}</p>
+                              </div>
+                              {!notif.read && <div className="w-2 h-2 bg-charcoal rounded-full mt-2" />}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <div className="px-4 py-2 border-t border-neutral-200">
+                        <Link to="/admin/notifications" className="block text-center text-sm text-charcoal hover:underline">View all notifications</Link>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <div className="hidden sm:flex items-center gap-3 px-3 py-2 bg-neutral-50 rounded-lg">
                 <div className="w-8 h-8 bg-charcoal rounded-full flex items-center justify-center">
