@@ -35,6 +35,16 @@ const MOCK_NOTIFICATIONS = [
   { id: "5", type: "customer", title: "New Customer", message: "Zara Malik registered", time: "5 hours ago", read: true, icon: Users, color: "text-purple-500" },
 ];
 
+const ADMIN_NAV = [
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Products", href: "/admin/products", icon: Package },
+  { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { label: "Reviews", href: "/admin/reviews", icon: MessageSquare },
+  { label: "Customers", href: "/admin/customers", icon: Users },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
+];
+
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
