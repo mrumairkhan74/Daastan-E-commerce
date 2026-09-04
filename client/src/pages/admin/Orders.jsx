@@ -14,6 +14,15 @@ import {
   MoreVertical,
   ChevronDown,
   ChevronUp,
+  RotateCcw,
+  Package,
+  Minus,
+  Plus,
+  AlertCircle,
+  Mail,
+  Phone,
+  MapPin,
+  X,
 } from "lucide-react";
 
 const MOCK_ORDERS = [
@@ -95,7 +104,36 @@ export default function AdminOrders() {
   const handleStatusChange = (newStatus) => {
     // In real app: API call
     console.log(`Order ${statusOrder.id} status changed to ${newStatus}`);
+    
+    // If cancelling, restore inventory
+    if (newStatus === "Cancelled" && statusOrder.status !== "Cancelled") {
+      console.log(`Restoring inventory for order ${statusOrder.id}`);
+    }
+    // If restoring from cancelled, reduce inventory
+    if (statusOrder.status === "Cancelled" && newStatus !== "Cancelled") {
+      console.log(`Reducing inventory for order ${statusOrder.id}`);
+    }
+    
     setShowStatusModal(false);
+  };
+
+  const cancelOrder = (order) => {
+    if (window.confirm(`Cancel order ${order.id}? This will restore inventory.`)) {
+      console.log(`Order ${order.id} cancelled, inventory restored`);
+    }
+  };
+
+  const getOrderItems = (orderId) => {
+    const itemsMap = {
+      "ORD-2024-001": [
+        { name: "DASTAN — CHAPTER I", qty: 1, price: 1499, sku: "CHAP-1-M" },
+        { name: "NAQSH RING", qty: 2, price: 1299, sku: "NAQSH-RING" },
+      ],
+      "ORD-2024-002": [
+        { name: "DASTAN — CHAPTER III", qty: 1, price: 1499, sku: "CHAP-3-L" },
+      ],
+    };
+    return itemsMap[orderId] || [{ name: "Product Item", qty: 1, price: 1000, sku: "SKU-001" }];
   };
 
   return (
@@ -191,6 +229,11 @@ export default function AdminOrders() {
                       <button onClick={() => openStatusModal(order)} className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="Update Status">
                         <Truck className="w-4 h-4" />
                       </button>
+                      {order.status !== "Cancelled" && order.status !== "Delivered" && (
+                        <button onClick={() => cancelOrder(order)} className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Cancel Order">
+                          <XCircle className="w-4 h-4" />
+                        </button>
+                      )}
                       <button className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="More">
                         <MoreVertical className="w-4 h-4" />
                       </button>
