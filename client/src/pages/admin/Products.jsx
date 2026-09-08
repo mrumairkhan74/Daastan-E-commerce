@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -52,9 +52,19 @@ export default function AdminProducts() {
   const [sortDir, setSortDir] = useState("asc");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [viewMode, setViewMode] = useState("active"); // 'active' or 'trash'
+  const [viewMode, setViewMode] = useState("active");
   const [products, setProducts] = useState(MOCK_PRODUCTS);
   const [deletedProducts, setDeletedProducts] = useState(DELETED_PRODUCTS);
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "Shirts",
+    price: "",
+    stock: "",
+    description: "",
+    images: [],
+  });
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const fileInputRef = useRef(null);
 
   const currentProducts = viewMode === "active" ? products : deletedProducts;
 
@@ -82,12 +92,45 @@ export default function AdminProducts() {
 
   const openEditModal = (product) => {
     setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      stock: product.stock,
+      description: "",
+      images: product.images || [],
+    });
+    setImagePreviews(product.images?.map(img => ({ url: img, name: img.split('/').pop() })) || []);
     setShowModal(true);
   };
 
   const openCreateModal = () => {
     setEditingProduct(null);
+    setFormData({ name: "", category: "Shirts", price: "", stock: "", description: "", images: [] });
+    setImagePreviews([]);
     setShowModal(true);
+  };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const newPreviews = files.map(file => ({
+      url: URL.createObjectURL(file),
+      name: file.name,
+      file: file,
+    }));
+    setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 5));
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, ...files.map(f => URL.createObjectURL(f))].slice(0, 5),
+    }));
+  };
+
+  const removeImage = (index) => {
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
   };
 
   const softDeleteProduct = (productId) => {
@@ -357,9 +400,41 @@ export default function AdminProducts() {
                   </div>
                   <div className="md:col-span-2">
                     <label className="block font-body text-sm text-neutral-700 mb-2">Images</label>
-                    <div className="border-2 border-dashed border-neutral-300 rounded-lg p-8 text-center">
-                      <p className="font-body text-sm text-neutral-500">Drag & drop images here, or click to browse</p>
-                      <p className="font-body text-xs text-neutral-400 mt-1">Max 5 images, 5MB each</p>
+                    <div className="space-y-3">
+                      <div className="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          id="product-images"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="product-images"
+                          className="cursor-pointer flex flex-col items-center justify-center p-6"
+                        >
+                          <p className="font-body text-sm text-neutral-500">Drag & drop images here, or click to browse</p>
+                          <p className="font-body text-xs text-neutral-400 mt-1">Max 5 images, 5MB each</p>
+                        </label>
+                      </div>
+                      {imagePreviews.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {imagePreviews.map((preview, index) => (
+                            <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden border border-neutral-200">
+                              <img src={preview.url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

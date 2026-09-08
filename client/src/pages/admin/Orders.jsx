@@ -75,6 +75,7 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusOrder, setStatusOrder] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(null);
 
   const filteredOrders = MOCK_ORDERS.filter((o) => {
     const matchesSearch = o.id.toLowerCase().includes(search.toLowerCase()) ||
@@ -222,21 +223,61 @@ export default function AdminOrders() {
                   </td>
                   <td className="px-6 py-4 font-body text-sm text-neutral-500">{order.date}</td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => setSelectedOrder(order)} className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="View">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => openStatusModal(order)} className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="Update Status">
-                        <Truck className="w-4 h-4" />
-                      </button>
-                      {order.status !== "Cancelled" && order.status !== "Delivered" && (
-                        <button onClick={() => cancelOrder(order)} className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Cancel Order">
-                          <XCircle className="w-4 h-4" />
+                    <div className="relative">
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => setSelectedOrder(order)} className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="View">
+                          <Eye className="w-4 h-4" />
                         </button>
-                      )}
-                      <button className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="More">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
+                        <button onClick={() => openStatusModal(order)} className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors" title="Update Status">
+                          <Truck className="w-4 h-4" />
+                        </button>
+                        {order.status !== "Cancelled" && order.status !== "Delivered" && (
+                          <button onClick={() => cancelOrder(order)} className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Cancel Order">
+                            <XCircle className="w-4 h-4" />
+                          </button>
+                        )}
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDropdownOpen(dropdownOpen === order.id ? null : order.id);
+                            }}
+                            className="p-2 text-neutral-500 hover:text-charcoal hover:bg-neutral-100 rounded-lg transition-colors"
+                            title="More"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                          {dropdownOpen === order.id && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50"
+                            >
+                              <button
+                                onClick={() => { setSelectedOrder(order); setDropdownOpen(null); }}
+                                className="w-full px-4 py-2 text-left text-sm text-charcoal hover:bg-neutral-100 flex items-center gap-2"
+                              >
+                                <Eye className="w-4 h-4" /> View
+                              </button>
+                              <button
+                                onClick={() => { openStatusModal(order); setDropdownOpen(null); }}
+                                className="w-full px-4 py-2 text-left text-sm text-charcoal hover:bg-neutral-100 flex items-center gap-2"
+                              >
+                                <Truck className="w-4 h-4" /> Update Status
+                              </button>
+                              {order.status !== "Cancelled" && order.status !== "Delivered" && (
+                                <button
+                                  onClick={() => { cancelOrder(order); setDropdownOpen(null); }}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  <XCircle className="w-4 h-4" /> Cancel Order
+                                </button>
+                              )}
+                            </motion.div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </td>
                 </motion.tr>
@@ -293,8 +334,15 @@ export default function AdminOrders() {
                       <div className="p-3 bg-neutral-50 border-b border-neutral-200 font-body text-xs font-medium text-neutral-500 uppercase tracking-wider grid grid-cols-4 gap-4">
                         <span>Product</span><span>Qty</span><span>Price</span><span>Total</span>
                       </div>
-                      <div className="p-4">
-                        <p className="font-body text-sm text-neutral-500">Order items would be listed here</p>
+                      <div className="divide-y divide-neutral-200">
+                        {getOrderItems(selectedOrder.id).map((item, idx) => (
+                          <div key={idx} className="p-4 grid grid-cols-4 gap-4 items-center">
+                            <span className="font-body text-sm text-charcoal">{item.name}</span>
+                            <span className="font-body text-sm text-neutral-600">{item.qty}</span>
+                            <span className="font-body text-sm text-neutral-600">PKR {item.price.toLocaleString()}</span>
+                            <span className="font-body text-sm font-medium text-charcoal">PKR {(item.price * item.qty).toLocaleString()}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
